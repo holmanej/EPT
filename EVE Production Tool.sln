@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30002.166
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EVE Production Tool", "EVE Production Tool\EVE Production Tool.csproj", "{E16F41A3-BB6F-4AF6-8EDC-B49079EA0E19}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E16F41A3-BB6F-4AF6-8EDC-B49079EA0E19}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E16F41A3-BB6F-4AF6-8EDC-B49079EA0E19}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E16F41A3-BB6F-4AF6-8EDC-B49079EA0E19}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E16F41A3-BB6F-4AF6-8EDC-B49079EA0E19}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {89566A13-F352-4799-9FD4-FA3D8B41FF84}
+	EndGlobalSection
+EndGlobal
