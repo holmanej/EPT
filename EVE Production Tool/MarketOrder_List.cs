@@ -5,7 +5,6 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using static EVE_Production_Tool.AssetLUT;
 using static EVE_Production_Tool.ESI;
 
 namespace EVE_Production_Tool
@@ -126,12 +125,13 @@ namespace EVE_Production_Tool
 
         public int FilterBySecurity()
         {
+            AssetLUT assets = new AssetLUT();
             int numFiltered = 0;
             List<MarketOrder> tempList = new List<MarketOrder>();
             tempList.AddRange(this);
             ForEach(delegate (MarketOrder order)
             {
-                if (GetSecurity(order.system_id) < SecurityReq)
+                if (assets.GetSecurity(order.system_id) < SecurityReq)
                 {
                     tempList.Remove(order);
                     numFiltered++;

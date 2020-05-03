@@ -7,17 +7,17 @@ using System.Threading.Tasks;
 
 namespace EVE_Production_Tool
 {
-    static class AssetLUT
+    class AssetLUT
     {
-        public struct BluePrint
-        {
-            public string typeID { get; set; }
-            public string activityID { get; set; }
-            public string materialID { get; set; }
-            public string quantity { get; set; }
-        }
+        //public struct BluePrint
+        //{
+        //    public string typeID { get; set; }
+        //    public string activityID { get; set; }
+        //    public string materialID { get; set; }
+        //    public string quantity { get; set; }
+        //}
 
-        public static bool CheckItemName(string name)
+        public bool CheckItemName(string name)
         {
             string[] entries = System.IO.File.ReadAllLines(@"ItemLUTfile.txt");
             foreach (string line in entries)
@@ -31,7 +31,7 @@ namespace EVE_Production_Tool
             return false;
         }
 
-        public static string GetItemID(string name)
+        public string GetItemID(string name)
         {
             string[] entries = System.IO.File.ReadAllLines(@"ItemLUTfile.txt");
             foreach (string line in entries)
@@ -45,7 +45,7 @@ namespace EVE_Production_Tool
             return null;
         }
 
-        public static string GetItemName(string id)
+        public string GetItemName(string id)
         {
             string[] entries = System.IO.File.ReadAllLines(@"ItemLUTfile.txt");
             foreach (string line in entries)
@@ -59,29 +59,29 @@ namespace EVE_Production_Tool
             return null;
         }
 
-        public static List<BluePrint> ReadBluePrintFile()
-        {
-            string[] entries = System.IO.File.ReadAllLines(@"BPLUTfile.txt");
-            List<BluePrint> BPs = new List<BluePrint>();
-            foreach (string line in entries)
-            {
-                string[] fields = line.Split(',');
-                //Console.WriteLine(fields[0]);
-                //Console.WriteLine(fields[1]);
-                //Console.WriteLine(fields[2]);
-                //Console.WriteLine(fields[3]);
-                BPs.Add(new BluePrint()
-                {
-                    typeID = fields[0],
-                    activityID = fields[1],
-                    materialID = fields[2],
-                    quantity = fields[3]
-                });
-            }
-            return BPs;
-        }
+        //public static List<BluePrint> ReadBluePrintFile()
+        //{
+        //    string[] entries = System.IO.File.ReadAllLines(@"BPLUTfile.txt");
+        //    List<BluePrint> BPs = new List<BluePrint>();
+        //    foreach (string line in entries)
+        //    {
+        //        string[] fields = line.Split(',');
+        //        //Console.WriteLine(fields[0]);
+        //        //Console.WriteLine(fields[1]);
+        //        //Console.WriteLine(fields[2]);
+        //        //Console.WriteLine(fields[3]);
+        //        BPs.Add(new BluePrint()
+        //        {
+        //            typeID = fields[0],
+        //            activityID = fields[1],
+        //            materialID = fields[2],
+        //            quantity = fields[3]
+        //        });
+        //    }
+        //    return BPs;
+        //}
 
-        public static string FindRegionName(string regionID)
+        public string FindRegionName(string regionID)
         {
             string[] entries = System.IO.File.ReadAllLines(@"RegionLUTfile.txt");
             foreach (string line in entries)
@@ -94,7 +94,7 @@ namespace EVE_Production_Tool
             return "region not found";
         }
 
-        public static string FindRegionID(string regionName)
+        public string FindRegionID(string regionName)
         {
             string[] entries = System.IO.File.ReadAllLines(@"RegionLUTfile.txt");
             foreach (string line in entries)
@@ -107,7 +107,7 @@ namespace EVE_Production_Tool
             return "system not found";
         }
 
-        public static List<string> GetAllRegionNames()
+        public List<string> GetAllRegionNames()
         {
             List<string> names = new List<string>();
             string[] entries = System.IO.File.ReadAllLines(@"RegionLUTfile.txt");
@@ -118,7 +118,7 @@ namespace EVE_Production_Tool
             return names;
         }
 
-        public static List<string> GetAllRegionIDs()
+        public List<string> GetAllRegionIDs()
         {
             List<string> IDs = new List<string>();
             string[] entries = System.IO.File.ReadAllLines(@"RegionLUTfile.txt");
@@ -129,7 +129,7 @@ namespace EVE_Production_Tool
             return IDs;
         }
 
-        public static string FindSystemName(string systemID)
+        public string FindSystemName(string systemID)
         {
             string[] entries = System.IO.File.ReadAllLines(@"SystemLUTfile.txt");
             foreach (string line in entries)
@@ -142,7 +142,7 @@ namespace EVE_Production_Tool
             return "system not found";
         }
 
-        public static string FindSystemID(string systemName)
+        public string FindSystemID(string systemName)
         {
             string[] entries = System.IO.File.ReadAllLines(@"SystemLUTfile.txt");
             foreach (string line in entries)
@@ -155,7 +155,7 @@ namespace EVE_Production_Tool
             return "system not found";
         }
 
-        public static List<string> GetSystemsInRegion(string regionID)
+        public List<string> GetSystemsInRegion(string regionID)
         {
             string[] lines = System.IO.File.ReadAllLines(@"RegionSystemLUTfile.txt");
             List<string> systems = new List<string>();
@@ -169,7 +169,7 @@ namespace EVE_Production_Tool
             return systems;            
         }
 
-        public static double GetSecurity(string systemID)
+        public double GetSecurity(string systemID)
         {
             string[] lines = System.IO.File.ReadAllLines(@"SystemSecurityLUTfile.txt");
             foreach (string line in lines)

@@ -58,16 +58,14 @@
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
-    <Compile Include="MarketBrowser.cs" />
+    <Compile Include="MarketBrowser.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="MarketOrder.cs" />
     <Compile Include="Order.cs" />
     <Compile Include="MarketOrder_List.cs" />
-    <Compile Include="OrderList_Panel.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RefinedOrder.cs" />
     <Compile Include="ResearchManager.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
