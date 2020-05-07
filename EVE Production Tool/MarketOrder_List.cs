@@ -89,16 +89,18 @@ namespace EVE_Production_Tool
             return numFiltered;
         }
 
-        public int FilterTopNumber(string type)
+        public int FilterTopNumber()
         {
             int listSize = Count;
             List<MarketOrder> tempList = new List<MarketOrder>();
             tempList.AddRange(this);
             this.Clear();
-            if (type == "sell")
+            Console.WriteLine("number: " + NumberPerPage);
+            if (OrderType == "sell")
             {
                 if (listSize >= NumberPerPage)
                 {
+                    
                     AddRange(tempList.OrderBy(p => p.price).ToList().GetRange(0, NumberPerPage));
                     return listSize - NumberPerPage;
                 }

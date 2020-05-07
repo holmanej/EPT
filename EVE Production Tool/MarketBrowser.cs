@@ -3,10 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using static EVE_Production_Tool.ESI;
-using System.Net.Http;
 
 namespace EVE_Production_Tool
 {
@@ -238,46 +235,18 @@ namespace EVE_Production_Tool
             //}
         }
 
-        private async Task<List<string>> FindRegionsInRange(string origin, int range)
-        {
-            List<string> regionIDs = Assets.GetAllRegionIDs();
-            List<string> validRegions = new List<string>();
-
-            foreach (string regionID in regionIDs)
-            {
-                if (regionID.StartsWith("10"))
-                {
-                    List<string> systems = Assets.GetSystemsInRegion(regionID);
-                    HttpResponseMessage response = await GetRouteContent(origin, systems[0]);
-                    if (response != null)
-                    {
-                        List<string> route = await DeserializeRouteResponse(response);
-                        int distance = route.Count;
-                        if (distance <= range)
-                        {
-                            validRegions.Add(regionID);
-                        }
-                    }
-                    else
-                    {
-                        //Console.WriteLine("get route failed");
-                    }
-                };
-            }
-            return validRegions;
-        }
-
         private async void SearchGo_Click(object sender, EventArgs e)
         {
-            Control.ControlCollection searchData = SearchPanel.Controls;
+            ControlCollection searchData = SearchPanel.Controls;
             SearchPanel.Controls.Find("statusConsole", true)[0].ResetText();
             ResultsHolder.Controls.Clear();
 
             List<string> inputs = new List<string>();
+            int controlNum = 0;
             foreach (Control input in searchData)
             {
                 inputs.Add(input.Text);
-                Console.WriteLine(input.Text);
+                Console.WriteLine(controlNum++ + ": " + input.Text);
             }
             MarketOrder_List ordersList = new MarketOrder_List()
             {
@@ -292,20 +261,46 @@ namespace EVE_Production_Tool
             };
             TextBox readOut = (TextBox)searchData[searchData.Count - 1];
 
+            RouteFinder router = new RouteFinder("SystemJumpsLUTfile.txt", ordersList.OriginSystem, ordersList.SearchRange);
+
             Console.WriteLine("Getting regions in range");
             readOut.AppendText("Getting regions in range\r\n");
-            List<string> regionsInRange = await FindRegionsInRange(ordersList.OriginSystem, ordersList.SearchRange);
+            List<string> systems = router.GetSystemsInRange(ordersList.SearchRange);
+            List<string> regionsInRange = new List<string>();
+            AssetLUT assets = new AssetLUT();
+            foreach (string sys in systems)
+            {
+                string region = assets.GetRegionOfSystem(sys);
+                if (!regionsInRange.Exists(r => r == region))
+                {
+                    regionsInRange.Add(region);
+                }
+            }
 
             Console.WriteLine("Getting orders. Regions: " + regionsInRange.Count);
             readOut.AppendText("Getting orders. Regions: " + regionsInRange.Count + "\r\n");
             await ordersList.GetAllOrders(regionsInRange);
+            MarketOrder_List temp = new MarketOrder_List();
+            foreach (MarketOrder order in ordersList)
+            {
+                if (router.Paths.Exists(n => order.system_id == n.ID))
+                {
+                    temp.Add(order);
+                }
+            }
+            ordersList.Clear();
+            ordersList.AddRange(temp);
 
             Console.WriteLine("Filtering orders. Count: " + ordersList.Count);
             readOut.AppendText("Filtering orders. Count: " + ordersList.Count + "\r\n");
+
             int numFiltered = ordersList.FilterBySecurity();
-            numFiltered += ordersList.FilterTopNumber(ordersList.OrderType);
-            Console.WriteLine("number filtered: " + numFiltered);
-            readOut.AppendText("number filtered: " + numFiltered + "\r\n");
+            Console.WriteLine("Filtered by security: " + numFiltered + "\r\n");
+            readOut.AppendText("Filtered by security: " + numFiltered + "\r\n");
+
+            numFiltered = ordersList.FilterTopNumber();
+            Console.WriteLine("Filtered by number: " + numFiltered);
+            readOut.AppendText("Filtered by number: " + numFiltered + "\r\n");
 
             Console.WriteLine("Getting route data. Count: " + ordersList.Count);
             readOut.AppendText("Getting route data. Count: " + ordersList.Count + "\r\n");
@@ -319,34 +314,25 @@ namespace EVE_Production_Tool
                 "Quantity",
                 "Target System"
             };
+
             foreach (MarketOrder order in ordersList)
             {
-                HttpResponseMessage response = await GetRouteContent(ordersList.OriginSystem, order.system_id);
-                if (response != null)
-                {
-                    List<string> route = await DeserializeRouteResponse(response);
-                    int distance = ConvertRange(order.range) > route.Count ? 0 : route.Count - ConvertRange(order.range);
-                    route.Insert(0, ordersList.OriginSystem);
-
-                    Console.WriteLine(progress + "/" + ordersList.Count);
-                    readOut.Text = readOut.Text.Replace(progress + "/" + ordersList.Count + "\r\n", (progress + 1) + "/" + ordersList.Count + "\r\n");
-                    progress++;
-                    orderData.Add(Assets.FindSystemName(order.system_id));
-                    orderData.Add(distance.ToString());
-                    orderData.Add(order.price.ToString());
-                    orderData.Add(order.volume_remain.ToString());
-                    orderData.Add(Assets.FindSystemName(route[distance]));
-                }
-                else
-                {
-                    Console.WriteLine("get route failed");
-                }
+                List<string> route = router.GetRoute(order.system_id);
+                int distance = route.Count - 1;
+                Console.WriteLine(progress + "/" + ordersList.Count);
+                readOut.Text = readOut.Text.Replace(progress + "/" + ordersList.Count + "\r\n", (progress + 1) + "/" + ordersList.Count + "\r\n");
+                progress++;
+                orderData.Add(Assets.FindSystemName(order.system_id));
+                orderData.Add(distance.ToString());
+                orderData.Add(order.price.ToString());
+                orderData.Add(order.volume_remain.ToString());
+                orderData.Add(Assets.FindSystemName(route[distance]));
             }
 
             ResultsHolder.Location = new Point(250, 20);
             ResultsHolder.Size = new Size(800, 600);
             ResultsHolder.ColumnCount = 5;
-            ResultsHolder.RowCount = 25;
+            ResultsHolder.RowCount = ordersList.Count + 1;
             for (int row = 0; row < ResultsHolder.RowCount; row++)
             {
                 for (int col = 0; col < ResultsHolder.ColumnCount; col++)

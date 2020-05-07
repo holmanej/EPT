@@ -169,6 +169,20 @@ namespace EVE_Production_Tool
             return systems;            
         }
 
+        public string GetRegionOfSystem(string systemID)
+        {
+            string[] lines = System.IO.File.ReadAllLines(@"RegionSystemLUTfile.txt");
+            foreach (string line in lines)
+            {
+                string[] parts = line.Split(',');
+                if (line.Contains(systemID))
+                {
+                    return parts[0];
+                }
+            }
+            return null;
+        }
+
         public double GetSecurity(string systemID)
         {
             string[] lines = System.IO.File.ReadAllLines(@"SystemSecurityLUTfile.txt");
