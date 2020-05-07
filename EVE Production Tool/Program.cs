@@ -18,6 +18,9 @@ namespace EVE_Production_Tool
 
             Form1 EPT_Form = new Form1();
             EPT_Form.Controls.Add(new MarketBrowser());
+            RouteFinder rf = new RouteFinder("SystemJumpsLUTfile.txt");
+            AssetLUT assets = new AssetLUT();
+            Console.WriteLine(rf.GetDistance(assets.FindSystemID("Eystur"), assets.FindSystemID("Eram")));
 
             Application.Run(EPT_Form);
         }
