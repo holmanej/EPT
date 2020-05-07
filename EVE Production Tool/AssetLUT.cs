@@ -2,21 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace EVE_Production_Tool
 {
     class AssetLUT
     {
-        //public struct BluePrint
-        //{
-        //    public string typeID { get; set; }
-        //    public string activityID { get; set; }
-        //    public string materialID { get; set; }
-        //    public string quantity { get; set; }
-        //}
-
         public bool CheckItemName(string name)
         {
             string[] entries = System.IO.File.ReadAllLines(@"ItemLUTfile.txt");
@@ -58,28 +48,6 @@ namespace EVE_Production_Tool
             }
             return null;
         }
-
-        //public static List<BluePrint> ReadBluePrintFile()
-        //{
-        //    string[] entries = System.IO.File.ReadAllLines(@"BPLUTfile.txt");
-        //    List<BluePrint> BPs = new List<BluePrint>();
-        //    foreach (string line in entries)
-        //    {
-        //        string[] fields = line.Split(',');
-        //        //Console.WriteLine(fields[0]);
-        //        //Console.WriteLine(fields[1]);
-        //        //Console.WriteLine(fields[2]);
-        //        //Console.WriteLine(fields[3]);
-        //        BPs.Add(new BluePrint()
-        //        {
-        //            typeID = fields[0],
-        //            activityID = fields[1],
-        //            materialID = fields[2],
-        //            quantity = fields[3]
-        //        });
-        //    }
-        //    return BPs;
-        //}
 
         public string FindRegionName(string regionID)
         {

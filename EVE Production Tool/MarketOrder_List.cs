@@ -5,7 +5,6 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using static EVE_Production_Tool.ESI;
 
 namespace EVE_Production_Tool
 {
@@ -56,20 +55,6 @@ namespace EVE_Production_Tool
                 await GetOrders(regionID);
             }
             return true;
-        }
-
-        public async Task<List<string>> GetRoute(string systemID)
-        {
-            HttpResponseMessage response = await GetRouteContent(OriginSystem, systemID);
-            if (response != null)
-            {
-                return await DeserializeRouteResponse(response);
-            }
-            else
-            {
-                Console.WriteLine("get route failed");
-                return new List<string>();
-            }
         }
 
         public int FilterTopPrice()
