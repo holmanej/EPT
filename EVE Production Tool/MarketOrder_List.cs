@@ -10,16 +10,16 @@ namespace EVE_Production_Tool
 {
     class MarketOrder_List : List<MarketOrder>
     {
-        public string TypeID { get; set; }
+        public int TypeID { get; set; }
         public string OrderType { get; set; }
-        public string OriginSystem { get; set; }
+        public int OriginSystem { get; set; }
         public int SearchRange { get; set; }
         public double SecurityReq { get; set; }
         public int PageNumber { get; set; }
         public int PricePercentage { get; set; }
         public int NumberPerPage { get; set; }
 
-        public async Task<bool> GetOrders(string regionID)
+        public async Task<bool> GetOrders(int regionID)
         {
             HttpClient client = new HttpClient();
             string path = "https://esi.evetech.net/latest/markets/" + regionID + "/orders/?datasource=tranquility&order_type=" + OrderType + "&page=1&type_id=" + TypeID;
@@ -48,9 +48,9 @@ namespace EVE_Production_Tool
             }
         }
 
-        public async Task<bool> GetAllOrders(List<string> regionsInRange)
+        public async Task<bool> GetAllOrders(List<int> regionsInRange)
         {
-            foreach (string regionID in regionsInRange)
+            foreach (int regionID in regionsInRange)
             {
                 await GetOrders(regionID);
             }

@@ -191,16 +191,16 @@ namespace EVE_Production_Tool
             };
             TextBox readOut = (TextBox)searchData[searchData.Count - 1];
 
-            RouteFinder router = new RouteFinder("SystemJumpsLUTfile.txt", ordersList.OriginSystem, ordersList.SearchRange);
+            RouteFinder router = new RouteFinder(ordersList.OriginSystem);
 
             Console.WriteLine("Getting regions in range");
             readOut.AppendText("Getting regions in range\r\n");
-            List<string> systems = router.GetSystemsInRange(ordersList.SearchRange);
-            List<string> regionsInRange = new List<string>();
+            List<int> systems = router.GetSystemsInRange(ordersList.SearchRange);
+            List<int> regionsInRange = new List<int>();
             AssetLUT assets = new AssetLUT();
-            foreach (string sys in systems)
+            foreach (int sys in systems)
             {
-                string region = assets.GetRegionOfSystem(sys);
+                int region = assets.GetRegionOfSystem(sys);
                 if (!regionsInRange.Exists(r => r == region))
                 {
                     regionsInRange.Add(region);
@@ -213,7 +213,7 @@ namespace EVE_Production_Tool
             MarketOrder_List temp = new MarketOrder_List();
             foreach (MarketOrder order in ordersList)
             {
-                if (router.Paths.Exists(n => order.system_id == n.ID))
+                if (systems.Exists(s => order.system_id == order.system_id))
                 {
                     temp.Add(order);
                 }
@@ -247,12 +247,12 @@ namespace EVE_Production_Tool
 
             foreach (MarketOrder order in ordersList)
             {
-                List<string> route = router.GetRoute(order.system_id);
+                List<int> route = router.GetRoute(int.Parse(order.system_id));
                 int distance = route.Count - 1;
                 Console.WriteLine(progress + "/" + ordersList.Count);
                 readOut.Text = readOut.Text.Replace(progress + "/" + ordersList.Count + "\r\n", (progress + 1) + "/" + ordersList.Count + "\r\n");
                 progress++;
-                orderData.Add(Assets.FindSystemName(order.system_id));
+                orderData.Add(Assets.FindSystemName(int.Parse(order.system_id)));
                 orderData.Add(distance.ToString());
                 orderData.Add(order.price.ToString());
                 orderData.Add(order.volume_remain.ToString());

@@ -21,7 +21,7 @@ namespace EVE_Production_Tool
             return false;
         }
 
-        public string GetItemID(string name)
+        public int GetItemID(string name)
         {
             string[] entries = System.IO.File.ReadAllLines(@"ItemLUTfile.txt");
             foreach (string line in entries)
@@ -29,10 +29,10 @@ namespace EVE_Production_Tool
                 if (line.Contains(name))
                 {
                     string[] parts = line.Split(',');
-                    return parts[0];
+                    return int.Parse(parts[0]);
                 }
             }
-            return null;
+            return -1;
         }
 
         public string GetItemName(string id)
@@ -62,17 +62,17 @@ namespace EVE_Production_Tool
             return "region not found";
         }
 
-        public string FindRegionID(string regionName)
+        public int FindRegionID(string regionName)
         {
             string[] entries = System.IO.File.ReadAllLines(@"RegionLUTfile.txt");
             foreach (string line in entries)
             {
                 if (line.Contains(regionName))
                 {
-                    return line.Substring(0, 8);
+                    return int.Parse(line.Substring(0, 8));
                 }
             }
-            return "system not found";
+            return -1;
         }
 
         public List<string> GetAllRegionNames()
@@ -97,12 +97,12 @@ namespace EVE_Production_Tool
             return IDs;
         }
 
-        public string FindSystemName(string systemID)
+        public string FindSystemName(int systemID)
         {
             string[] entries = System.IO.File.ReadAllLines(@"SystemLUTfile.txt");
             foreach (string line in entries)
             {
-                if (line.Contains(systemID))
+                if (line.Contains(systemID.ToString()))
                 {
                     return line.Substring(9);
                 }
@@ -110,17 +110,17 @@ namespace EVE_Production_Tool
             return "system not found";
         }
 
-        public string FindSystemID(string systemName)
+        public int FindSystemID(string systemName)
         {
             string[] entries = System.IO.File.ReadAllLines(@"SystemLUTfile.txt");
             foreach (string line in entries)
             {
                 if (line.Contains(systemName))
                 {
-                    return line.Substring(0, 8);
+                    return int.Parse(line.Substring(0, 8));
                 }
             }
-            return "system not found";
+            return -1;
         }
 
         public List<string> GetSystemsInRegion(string regionID)
@@ -137,18 +137,18 @@ namespace EVE_Production_Tool
             return systems;            
         }
 
-        public string GetRegionOfSystem(string systemID)
+        public int GetRegionOfSystem(int systemID)
         {
             string[] lines = System.IO.File.ReadAllLines(@"RegionSystemLUTfile.txt");
             foreach (string line in lines)
             {
                 string[] parts = line.Split(',');
-                if (line.Contains(systemID))
+                if (line.Contains(systemID.ToString()))
                 {
-                    return parts[0];
+                    return int.Parse(parts[0]);
                 }
             }
-            return null;
+            return -1;
         }
 
         public double GetSecurity(string systemID)
