@@ -30,29 +30,23 @@ namespace EVE_Production_Tool
             }
             string orderType = "sell";
             List<int> regionDone = new List<int>();
-            regionList.ForEach(async delegate (int region)
+            Parallel.ForEach(regionList, (region) =>
             {
-                int pages = await AsyncOrdering(region, orderType, 1);
-                for (int i = 2; i <= pages; i++)
+                int pages = AsyncOrdering(region, orderType, 1);
+                Parallel.For(2, pages, (i) =>
                 {
-                    await AsyncOrdering(region, orderType, i);
-                }
+                    AsyncOrdering(region, orderType, i);
+                });
                 regionDone.Add(region);
                 Debug.WriteLine(regionDone.Count + "/" + regionList.Count + "  " + region + " : " + Orders.Count);
-                Debug.WriteLine(Process.GetCurrentProcess().Threads.Count);
-                //foreach (int r in regionList.FindAll(i => !regionDone.Exists(j => j == i)))
-                //{
-                //    Debug.WriteLine(r);
-                //}
             });
-            Debug.WriteLine("done");
         }
 
-        private async Task<int> AsyncOrdering(int regionID, string orderType, int pageIndex)
+        private int AsyncOrdering(int regionID, string orderType, int pageIndex)
         {
             HttpClient client = new HttpClient();
             string path = "https://esi.evetech.net/latest/markets/" + regionID + "/orders/?datasource=tranquility&order_type=" + orderType + "&page=" + pageIndex;
-            HttpResponseMessage response = await client.GetAsync(path);
+            HttpResponseMessage response = client.GetAsync(path).Result;
             if (response.IsSuccessStatusCode)
             {
                 if (response != null)
