@@ -59,6 +59,7 @@
     <Compile Include="MarketBrowser.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="MarketCache.cs" />
     <Compile Include="MarketOrder.cs" />
     <Compile Include="MarketOrder_List.cs" />
     <Compile Include="Program.cs" />

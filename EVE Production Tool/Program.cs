@@ -19,17 +19,10 @@ namespace EVE_Production_Tool
 
             Console.WriteLine(FindAssets("assets"));
 
-            AssetLUT luts = new AssetLUT();
             Form1 EPT_Form = new Form1();
-            RouteFinder rf = new RouteFinder(luts.FindSystemID("Jita"));
-            List<int> route = rf.GetRoute(luts.FindSystemID("Jita"));
-            Console.WriteLine(rf.GetDistance(luts.FindSystemID("Jita")));
-            List<int> neighbors = rf.GetSystemsInRange(1);
-            foreach (int s in neighbors)
-            {
-                Debug.WriteLine(luts.FindSystemName(s));
-            }
-            EPT_Form.Controls.Add(new MarketBrowser());
+            //EPT_Form.Controls.Add(new MarketBrowser());
+
+            _ = new MarketCache();
 
             Application.Run(EPT_Form);
         }
