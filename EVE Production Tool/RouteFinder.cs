@@ -1,12 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Drawing.Drawing2D;
 using System.Linq;
-using System.Net.NetworkInformation;
-using System.Security;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace EVE_Production_Tool
 {
@@ -82,7 +76,15 @@ namespace EVE_Production_Tool
 
         public int GetDistance(int target)
         {
-            return Nodes.Find(n => n.ID == target).Distance;
+            try
+            {
+                return Nodes.Find(n => n.ID == target).Distance;
+            }
+            catch
+            {
+                return -1;
+            }
+            
         }
 
         public List<int> GetRoute(int target)

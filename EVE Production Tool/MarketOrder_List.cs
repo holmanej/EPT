@@ -85,7 +85,6 @@ namespace EVE_Production_Tool
             {
                 if (listSize >= NumberPerPage)
                 {
-                    
                     AddRange(tempList.OrderBy(p => p.price).ToList().GetRange(0, NumberPerPage));
                     return listSize - NumberPerPage;
                 }

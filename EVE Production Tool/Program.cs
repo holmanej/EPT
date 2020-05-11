@@ -20,9 +20,7 @@ namespace EVE_Production_Tool
             Console.WriteLine(FindAssets("assets"));
 
             Form1 EPT_Form = new Form1();
-            //EPT_Form.Controls.Add(new MarketBrowser());
-
-            _ = new MarketCache();
+            EPT_Form.Controls.Add(new MarketBrowser());
 
             Application.Run(EPT_Form);
         }

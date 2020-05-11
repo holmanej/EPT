@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -12,6 +13,7 @@ namespace EVE_Production_Tool
         private TableLayoutPanel ResultsHolder = new TableLayoutPanel();
         private Panel SearchPanel = new Panel();
         private AssetLUT Assets = new AssetLUT();
+        private MarketCache OrderCache = new MarketCache();
 
         public MarketBrowser()
         {
@@ -27,7 +29,8 @@ namespace EVE_Production_Tool
             TextBox searchBox = new TextBox()
             {
                 Location = new Point(20, 25),
-                Size = new Size(140, 20)
+                Size = new Size(140, 20),
+                Text = "Tritanium"
             };
             searchBox.KeyPress += SearchBox_KeyPress;
             SearchPanel.Controls.Add(searchBox);
@@ -53,7 +56,8 @@ namespace EVE_Production_Tool
             TextBox originBox = new TextBox()
             {
                 Location = new Point(20, 75),
-                Size = new Size(140, 20)
+                Size = new Size(140, 20),
+                Text = "Jita"
             };
             SearchPanel.Controls.Add(originBox);
 
@@ -67,7 +71,8 @@ namespace EVE_Production_Tool
             TextBox proxBox = new TextBox()
             {
                 Location = new Point(175, 75),
-                Size = new Size(40, 20)
+                Size = new Size(40, 20),
+                Text = "100"
             };
             SearchPanel.Controls.Add(proxBox);
 
@@ -81,7 +86,8 @@ namespace EVE_Production_Tool
             TextBox numOrders = new TextBox()
             {
                 Location = new Point(20, 120),
-                Size = new Size(40, 20)
+                Size = new Size(40, 20),
+                Text = "25"
             };
             SearchPanel.Controls.Add(numOrders);
 
@@ -165,8 +171,10 @@ namespace EVE_Production_Tool
             }
         }
 
-        private async void SearchGo_Click(object sender, EventArgs e)
+        private void SearchGo_Click(object sender, EventArgs e)
         {
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
             ControlCollection searchData = SearchPanel.Controls;
             SearchPanel.Controls.Find("statusConsole", true)[0].ResetText();
             ResultsHolder.Controls.Clear();
@@ -192,39 +200,43 @@ namespace EVE_Production_Tool
             TextBox readOut = (TextBox)searchData[searchData.Count - 1];
 
             RouteFinder router = new RouteFinder(ordersList.OriginSystem);
+            
+            List<MarketOrder> temp = OrderCache.Orders;
+            temp.RemoveAll(o => o == null);
 
-            Console.WriteLine("Getting regions in range");
-            readOut.AppendText("Getting regions in range\r\n");
+            Console.WriteLine("Filtering orders. Count: " + temp.Count);
+            readOut.AppendText("Filtering orders. Count: " + temp.Count + "\r\n");
+
+            int numFiltered = temp.RemoveAll(o => o.type_id != ordersList.TypeID.ToString());
+            Debug.WriteLine("Filtered by item: " + numFiltered);
+            readOut.AppendText("Filtered by item: " + numFiltered + "\r\n");
+
+            numFiltered = temp.RemoveAll(o => o.is_buy_order == (ordersList.OrderType == "sell"));
+            Debug.WriteLine("Filtered by type: " + numFiltered);
+            readOut.AppendText("Filtered by type: " + numFiltered + "\r\n");
+
             List<int> systems = router.GetSystemsInRange(ordersList.SearchRange);
-            List<int> regionsInRange = new List<int>();
-            AssetLUT assets = new AssetLUT();
-            foreach (int sys in systems)
+            temp.ForEach(delegate (MarketOrder order)
             {
-                int region = assets.GetRegionOfSystem(sys);
-                if (!regionsInRange.Exists(r => r == region))
+                if (systems.Exists(s => s == int.Parse(order.system_id)))
                 {
-                    regionsInRange.Add(region);
+                    ordersList.Add(order);
                 }
-            }
+            });
 
-            Console.WriteLine("Getting orders. Regions: " + regionsInRange.Count);
-            readOut.AppendText("Getting orders. Regions: " + regionsInRange.Count + "\r\n");
-            await ordersList.GetAllOrders(regionsInRange);
-            MarketOrder_List temp = new MarketOrder_List();
-            foreach (MarketOrder order in ordersList)
-            {
-                if (systems.Exists(s => order.system_id == order.system_id))
-                {
-                    temp.Add(order);
-                }
-            }
-            ordersList.Clear();
-            ordersList.AddRange(temp);
+            //temp.ForEach(delegate (MarketOrder order)
+            //{
+            //    int dist = router.GetDistance(int.Parse(order.system_id));
+            //    if (dist <= ordersList.SearchRange && dist >= 0)
+            //    {
+            //        ordersList.Add(order);
+            //    }
+            //});
+            numFiltered = temp.Count - ordersList.Count;
+            Debug.WriteLine("Filtered by distance: " + numFiltered);
+            readOut.AppendText("Filtered by distance: " + numFiltered + "\r\n");
 
-            Console.WriteLine("Filtering orders. Count: " + ordersList.Count);
-            readOut.AppendText("Filtering orders. Count: " + ordersList.Count + "\r\n");
-
-            int numFiltered = ordersList.FilterBySecurity();
+            numFiltered = ordersList.FilterBySecurity();
             Console.WriteLine("Filtered by security: " + numFiltered + "\r\n");
             readOut.AppendText("Filtered by security: " + numFiltered + "\r\n");
 
@@ -241,8 +253,7 @@ namespace EVE_Production_Tool
                 "System Name",
                 "Distance",
                 "Price",
-                "Quantity",
-                "Target System"
+                "Quantity"
             };
 
             foreach (MarketOrder order in ordersList)
@@ -256,12 +267,11 @@ namespace EVE_Production_Tool
                 orderData.Add(distance.ToString());
                 orderData.Add(order.price.ToString());
                 orderData.Add(order.volume_remain.ToString());
-                orderData.Add(Assets.FindSystemName(route[distance]));
             }
 
             ResultsHolder.Location = new Point(250, 20);
             ResultsHolder.Size = new Size(800, 600);
-            ResultsHolder.ColumnCount = 5;
+            ResultsHolder.ColumnCount = 4;
             ResultsHolder.RowCount = ordersList.Count + 1;
             for (int row = 0; row < ResultsHolder.RowCount; row++)
             {
@@ -278,6 +288,8 @@ namespace EVE_Production_Tool
             }
             Console.WriteLine("Done");
             readOut.AppendText("Done\r\n");
+            stopwatch.Stop();
+            Debug.WriteLine("timed: " + stopwatch.Elapsed);
         }
 
     }

@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Reflection;
 using System.Runtime.Remoting.Messaging;
 using System.Text;
 using System.Threading;
@@ -15,12 +16,12 @@ namespace EVE_Production_Tool
 {
     class MarketCache
     {
-        //public Dictionary<int, MarketOrder> SystemOrders = new Dictionary<int, MarketOrder>();
-        private List<MarketOrder> Orders = new List<MarketOrder>();
+        public List<MarketOrder> Orders = new List<MarketOrder>();
 
         public MarketCache()
         {
             List<int> regionList = new List<int>();
+            //regionList.Add(10000030);
             foreach (string line in System.IO.File.ReadAllLines(@"RegionLUTfile.txt"))
             {
                 if (line.StartsWith("10"))
@@ -28,18 +29,21 @@ namespace EVE_Production_Tool
                     regionList.Add(int.Parse(line.Substring(0, 8)));
                 }
             }
-            string orderType = "sell";
+            string[] orderTypes = { "sell", "buy" };
             List<int> regionDone = new List<int>();
-            Parallel.ForEach(regionList, (region) =>
+            foreach (string orderType in orderTypes)
             {
-                int pages = AsyncOrdering(region, orderType, 1);
-                Parallel.For(2, pages, (i) =>
+                Parallel.ForEach(regionList, (region) =>
                 {
-                    AsyncOrdering(region, orderType, i);
+                    int pages = AsyncOrdering(region, orderType, 1);
+                    Parallel.For(2, pages, (i) =>
+                    {
+                        AsyncOrdering(region, orderType, i);
+                    });
+                    regionDone.Add(region);
+                    Debug.WriteLine(regionDone.Count + "/" + (2 * regionList.Count) + "  " + region + " : " + Orders.Count);
                 });
-                regionDone.Add(region);
-                Debug.WriteLine(regionDone.Count + "/" + regionList.Count + "  " + region + " : " + Orders.Count);
-            });
+            }
         }
 
         private int AsyncOrdering(int regionID, string orderType, int pageIndex)
