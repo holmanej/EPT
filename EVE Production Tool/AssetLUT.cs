@@ -35,7 +35,7 @@ namespace EVE_Production_Tool
             return -1;
         }
 
-        public string GetItemName(string id)
+        public int GetItemName(string id)
         {
             string[] entries = System.IO.File.ReadAllLines(@"ItemLUTfile.txt");
             foreach (string line in entries)
@@ -43,10 +43,10 @@ namespace EVE_Production_Tool
                 if (line.Contains(id))
                 {
                     string[] parts = line.Split(',');
-                    return parts[1];
+                    return int.Parse(parts[1]);
                 }
             }
-            return null;
+            return -1;
         }
 
         public string FindRegionName(string regionID)
@@ -158,18 +158,7 @@ namespace EVE_Production_Tool
             {
                 if (line.Contains(systemID))
                 {
-                    //Console.WriteLine(line);
-                    if (double.TryParse(line.Substring(9), out double security))
-                    {
-                        if (security < 0)
-                        {
-                            return 0;
-                        }
-                        else
-                        {
-                            return Math.Round(security);
-                        }
-                    }
+                    return double.Parse(line.Substring(9));
                 }
             }
             return -1;

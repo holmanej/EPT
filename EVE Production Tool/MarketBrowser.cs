@@ -186,68 +186,56 @@ namespace EVE_Production_Tool
                 inputs.Add(input.Text);
                 Console.WriteLine(controlNum++ + ": " + input.Text);
             }
-            MarketOrder_List ordersList = new MarketOrder_List()
-            {
-                TypeID = Assets.GetItemID(inputs[1]),
-                OrderType = inputs[2],
-                OriginSystem = Assets.FindSystemID(inputs[4]),
-                SearchRange = int.Parse(inputs[6]),
-                NumberPerPage = int.Parse(inputs[8]),
-                SecurityReq = inputs[9] == "safe" ? 0.5 : 0,
-                PageNumber = 0,
-                PricePercentage = 20
-            };
+            int typeID = Assets.GetItemID(inputs[1]);
+            bool isByOrder = inputs[2] == "buy";
+            int curSystem = Assets.FindSystemID(inputs[4]);
+            int searchRange = int.Parse(inputs[6]);
+            double secClass = (inputs[9] == "safe") ? 0.45 : -1;
+            List<MarketOrder> ordersList = new List<MarketOrder>();
+
             TextBox readOut = (TextBox)searchData[searchData.Count - 1];
 
-            RouteFinder router = new RouteFinder(ordersList.OriginSystem);
-            
-            List<MarketOrder> temp = OrderCache.Orders;
+            RouteFinder router = new RouteFinder(curSystem, secClass);
+
+            List<MarketOrder> temp = new List<MarketOrder>();
+            temp.AddRange(OrderCache.Orders);
             temp.RemoveAll(o => o == null);
 
             Console.WriteLine("Filtering orders. Count: " + temp.Count);
             readOut.AppendText("Filtering orders. Count: " + temp.Count + "\r\n");
 
-            int numFiltered = temp.RemoveAll(o => o.type_id != ordersList.TypeID.ToString());
+            int numFiltered = temp.RemoveAll(o => o.type_id != typeID.ToString());
             Debug.WriteLine("Filtered by item: " + numFiltered);
             readOut.AppendText("Filtered by item: " + numFiltered + "\r\n");
 
-            numFiltered = temp.RemoveAll(o => o.is_buy_order == (ordersList.OrderType == "sell"));
+            numFiltered = temp.RemoveAll(o => o.is_buy_order != isByOrder);
             Debug.WriteLine("Filtered by type: " + numFiltered);
             readOut.AppendText("Filtered by type: " + numFiltered + "\r\n");
 
-            List<int> systems = router.GetSystemsInRange(ordersList.SearchRange);
             temp.ForEach(delegate (MarketOrder order)
             {
-                if (systems.Exists(s => s == int.Parse(order.system_id)))
+                int dist = router.GetDistance(int.Parse(order.system_id));
+                if (dist <= searchRange && dist >= 0)
                 {
                     ordersList.Add(order);
                 }
             });
-
-            //temp.ForEach(delegate (MarketOrder order)
-            //{
-            //    int dist = router.GetDistance(int.Parse(order.system_id));
-            //    if (dist <= ordersList.SearchRange && dist >= 0)
-            //    {
-            //        ordersList.Add(order);
-            //    }
-            //});
             numFiltered = temp.Count - ordersList.Count;
             Debug.WriteLine("Filtered by distance: " + numFiltered);
             readOut.AppendText("Filtered by distance: " + numFiltered + "\r\n");
-
-            numFiltered = ordersList.FilterBySecurity();
+            numFiltered = ordersList.RemoveAll(o => Assets.GetSecurity(o.system_id) < secClass);
             Console.WriteLine("Filtered by security: " + numFiltered + "\r\n");
             readOut.AppendText("Filtered by security: " + numFiltered + "\r\n");
 
-            numFiltered = ordersList.FilterTopNumber();
-            Console.WriteLine("Filtered by number: " + numFiltered);
-            readOut.AppendText("Filtered by number: " + numFiltered + "\r\n");
+            if (isByOrder)
+            {
+                ordersList = ordersList.OrderByDescending(p => p.price).ToList();
+            }
+            else
+            {
+                ordersList = ordersList.OrderBy(p => p.price).ToList();
+            }
 
-            Console.WriteLine("Getting route data. Count: " + ordersList.Count);
-            readOut.AppendText("Getting route data. Count: " + ordersList.Count + "\r\n");
-            int progress = 0;
-            readOut.AppendText(progress + "/" + ordersList.Count + "\r\n");
             List<string> orderData = new List<string>
             {
                 "System Name",
@@ -260,9 +248,6 @@ namespace EVE_Production_Tool
             {
                 List<int> route = router.GetRoute(int.Parse(order.system_id));
                 int distance = route.Count - 1;
-                Console.WriteLine(progress + "/" + ordersList.Count);
-                readOut.Text = readOut.Text.Replace(progress + "/" + ordersList.Count + "\r\n", (progress + 1) + "/" + ordersList.Count + "\r\n");
-                progress++;
                 orderData.Add(Assets.FindSystemName(int.Parse(order.system_id)));
                 orderData.Add(distance.ToString());
                 orderData.Add(order.price.ToString());
@@ -290,6 +275,9 @@ namespace EVE_Production_Tool
             readOut.AppendText("Done\r\n");
             stopwatch.Stop();
             Debug.WriteLine("timed: " + stopwatch.Elapsed);
+            long seconds = stopwatch.ElapsedMilliseconds / 1000;
+            long milis = stopwatch.ElapsedMilliseconds % 1000;
+            readOut.AppendText("Retrieved in " + seconds + "." + milis);
         }
 
     }

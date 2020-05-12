@@ -22,7 +22,7 @@ namespace EVE_Production_Tool
 
         List<Node> Nodes = new List<Node>();
 
-        public RouteFinder(int origin)
+        public RouteFinder(int origin, double security)
         {
             Dictionary<int, List<int>> Graph = new Dictionary<int, List<int>>();
             List<Node> newNodes = new List<Node>();
@@ -76,15 +76,14 @@ namespace EVE_Production_Tool
 
         public int GetDistance(int target)
         {
-            try
+            foreach (Node n in Nodes)
             {
-                return Nodes.Find(n => n.ID == target).Distance;
+                if (n.ID == target)
+                {
+                    return n.Distance;
+                }
             }
-            catch
-            {
-                return -1;
-            }
-            
+            return -1;
         }
 
         public List<int> GetRoute(int target)
