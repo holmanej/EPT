@@ -15,14 +15,14 @@ namespace EVE_Production_Tool
         public MarketCache()
         {
             List<int> regionList = new List<int>();
-            regionList.Add(10000030);
-            //foreach (string line in System.IO.File.ReadAllLines(@"RegionLUTfile.txt"))
-            //{
-            //    if (line.StartsWith("10"))
-            //    {
-            //        regionList.Add(int.Parse(line.Substring(0, 8)));
-            //    }
-            //}
+            //regionList.Add(10000030);
+            foreach (string line in System.IO.File.ReadAllLines(@"RegionLUTfile.txt"))
+            {
+                if (line.StartsWith("10"))
+                {
+                    regionList.Add(int.Parse(line.Substring(0, 8)));
+                }
+            }
             string[] orderTypes = { "sell", "buy" };
             List<int> regionDone = new List<int>();
             foreach (string orderType in orderTypes)

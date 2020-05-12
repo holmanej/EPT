@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace EVE_Production_Tool
@@ -27,23 +28,26 @@ namespace EVE_Production_Tool
             Dictionary<int, List<int>> Graph = new Dictionary<int, List<int>>();
             List<Node> newNodes = new List<Node>();
 
-            foreach (string line in System.IO.File.ReadAllLines("JumpMap.txt"))
+            foreach (string line in System.IO.File.ReadAllLines("NewJumpMap.txt"))
             {
                 string[] parts = line.Split(',');
-                int system = int.Parse(parts[0]);
-                List<int> gates = new List<int>();
-                for (int i = 1; i < parts.Count(); i++)
+                if (double.Parse(parts[1]) >= security)
                 {
-                    gates.Add(int.Parse(parts[i]));
-                }
-                Graph.Add(system, gates);
-
-                if (system == origin)
-                {
-                    Nodes.Add(new Node(system, 0, -1));
-                    foreach (int gate in gates)
+                    int system = int.Parse(parts[0]);
+                    List<int> gates = new List<int>();
+                    for (int i = 2; i < parts.Count(); i++)
                     {
-                        newNodes.Add(new Node(gate, 1, system));
+                        gates.Add(int.Parse(parts[i]));
+                    }
+                    Graph.Add(system, gates);
+
+                    if (system == origin)
+                    {
+                        Nodes.Add(new Node(system, 0, -1));
+                        foreach (int gate in gates)
+                        {
+                            newNodes.Add(new Node(gate, 1, system));
+                        }
                     }
                 }
             }

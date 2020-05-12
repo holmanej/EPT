@@ -223,9 +223,6 @@ namespace EVE_Production_Tool
             numFiltered = temp.Count - ordersList.Count;
             Debug.WriteLine("Filtered by distance: " + numFiltered);
             readOut.AppendText("Filtered by distance: " + numFiltered + "\r\n");
-            numFiltered = ordersList.RemoveAll(o => Assets.GetSecurity(o.system_id) < secClass);
-            Console.WriteLine("Filtered by security: " + numFiltered + "\r\n");
-            readOut.AppendText("Filtered by security: " + numFiltered + "\r\n");
 
             if (isByOrder)
             {
@@ -246,10 +243,9 @@ namespace EVE_Production_Tool
 
             foreach (MarketOrder order in ordersList)
             {
-                List<int> route = router.GetRoute(int.Parse(order.system_id));
-                int distance = route.Count - 1;
+                int dist = router.GetDistance(int.Parse(order.system_id));
                 orderData.Add(Assets.FindSystemName(int.Parse(order.system_id)));
-                orderData.Add(distance.ToString());
+                orderData.Add(dist.ToString());
                 orderData.Add(order.price.ToString());
                 orderData.Add(order.volume_remain.ToString());
             }
@@ -257,7 +253,7 @@ namespace EVE_Production_Tool
             ResultsHolder.Location = new Point(250, 20);
             ResultsHolder.Size = new Size(800, 600);
             ResultsHolder.ColumnCount = 4;
-            ResultsHolder.RowCount = ordersList.Count + 1;
+            ResultsHolder.RowCount = int.Parse(inputs[8]) + 1;
             for (int row = 0; row < ResultsHolder.RowCount; row++)
             {
                 for (int col = 0; col < ResultsHolder.ColumnCount; col++)
